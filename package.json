@@ -10,6 +10,7 @@
   "private": true,
   "devDependencies": {
     "prettier": "^3.9.6",
+    "rollup": "^4.62.4",
     "typescript": "~5.9.3"
   }
 }
