@@ -153,7 +153,7 @@ router.get("/projects", async (req, res) => {
     .from(projectsTable)
     .orderBy(asc(projectsTable.sortOrder));
   res.json(
-    projects.map((p) => ({
+    projects.map((p: any) => ({
       ...p,
       createdAt: p.createdAt.toISOString(),
     }))
@@ -168,7 +168,7 @@ router.get("/projects/featured", async (req, res) => {
     .where(eq(projectsTable.featured, true))
     .orderBy(asc(projectsTable.sortOrder));
   res.json(
-    projects.map((p) => ({
+    projects.map((p: any) => ({
       ...p,
       createdAt: p.createdAt.toISOString(),
     }))

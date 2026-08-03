@@ -13,7 +13,7 @@ router.get("/posts/recent", async (_req, res) => {
     .orderBy(desc(postsTable.publishedAt))
     .limit(3);
   res.json(
-    posts.map((p) => ({
+    posts.map((p: any) => ({
       ...p,
       publishedAt: p.publishedAt?.toISOString() ?? null,
       createdAt: p.createdAt.toISOString(),
@@ -32,10 +32,10 @@ router.get("/posts", async (req, res) => {
 
   const posts = await query;
   const filtered = tag
-    ? posts.filter((p) => p.tags.includes(String(tag)))
+    ? posts.filter((p: any) => p.tags.includes(String(tag)))
     : posts;
   res.json(
-    filtered.map((p) => ({
+    filtered.map((p: any) => ({
       ...p,
       publishedAt: p.publishedAt?.toISOString() ?? null,
       createdAt: p.createdAt.toISOString(),
