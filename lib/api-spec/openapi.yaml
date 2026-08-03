@@ -3,20 +3,34 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Portfolio API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: projects
+    description: Portfolio projects
+  - name: experience
+    description: Work experience timeline
+  - name: publications
+    description: Research publications
+  - name: posts
+    description: Blog posts
+  - name: contact
+    description: Contact form
+  - name: skills
+    description: Skills data
+  - name: stats
+    description: Portfolio stats
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +38,225 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all projects
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+
+  /projects/featured:
+    get:
+      operationId: listFeaturedProjects
+      tags: [projects]
+      summary: List featured projects for hero strip
+      responses:
+        "200":
+          description: Featured projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a single project with full case study
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Project detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /experience:
+    get:
+      operationId: listExperience
+      tags: [experience]
+      summary: List work experience timeline entries
+      responses:
+        "200":
+          description: Experience entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExperienceEntry"
+
+  /publications:
+    get:
+      operationId: listPublications
+      tags: [publications]
+      summary: List research publications
+      responses:
+        "200":
+          description: Publications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Publication"
+
+  /posts:
+    get:
+      operationId: listPosts
+      tags: [posts]
+      summary: List blog posts
+      parameters:
+        - name: tag
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Blog posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+
+  /posts/recent:
+    get:
+      operationId: listRecentPosts
+      tags: [posts]
+      summary: List 3 most recent blog posts
+      responses:
+        "200":
+          description: Recent posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+
+  /posts/{slug}:
+    get:
+      operationId: getPost
+      tags: [posts]
+      summary: Get a blog post by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Blog post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /posts/{slug}/view:
+    post:
+      operationId: incrementPostView
+      tags: [posts]
+      summary: Increment view counter for a post
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated view count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ViewCount"
+
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      summary: Submit a contact form message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Message received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /skills:
+    get:
+      operationId: listSkills
+      tags: [skills]
+      summary: List skills grouped by category
+      responses:
+        "200":
+          description: Skills by category
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkillGroup"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [stats]
+      summary: Get portfolio stats (years experience, projects shipped, publications, certifications)
+      responses:
+        "200":
+          description: Portfolio stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortfolioStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +267,273 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        slug:
+          type: string
+        summary:
+          type: string
+        description:
+          type: ["string", "null"]
+        problemStatement:
+          type: ["string", "null"]
+        architectureNotes:
+          type: ["string", "null"]
+        keyDecisions:
+          type: ["string", "null"]
+        outcomes:
+          type: ["string", "null"]
+        techStack:
+          type: array
+          items:
+            type: string
+        githubUrl:
+          type: ["string", "null"]
+        liveUrl:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        featured:
+          type: boolean
+        order:
+          type: number
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - slug
+        - summary
+        - techStack
+        - featured
+        - order
+        - createdAt
+        - description
+        - problemStatement
+        - architectureNotes
+        - keyDecisions
+        - outcomes
+        - githubUrl
+        - liveUrl
+        - imageUrl
+
+    ExperienceEntry:
+      type: object
+      properties:
+        id:
+          type: number
+        company:
+          type: string
+        role:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: ["string", "null"]
+        current:
+          type: boolean
+        location:
+          type: ["string", "null"]
+        description:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: string
+        techStack:
+          type: array
+          items:
+            type: string
+        order:
+          type: number
+      required:
+        - id
+        - company
+        - role
+        - startDate
+        - endDate
+        - current
+        - description
+        - highlights
+        - techStack
+        - order
+        - location
+
+    Publication:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        venue:
+          type: string
+        year:
+          type: number
+        abstract:
+          type: ["string", "null"]
+        plainLanguageSummary:
+          type: ["string", "null"]
+        doi:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - title
+        - authors
+        - venue
+        - year
+        - abstract
+        - plainLanguageSummary
+        - doi
+        - url
+        - tags
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: ["string", "null"]
+        content:
+          type: ["string", "null"]
+        tags:
+          type: array
+          items:
+            type: string
+        readingTimeMinutes:
+          type: number
+        views:
+          type: number
+        publishedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - slug
+        - excerpt
+        - content
+        - tags
+        - readingTimeMinutes
+        - views
+        - publishedAt
+        - createdAt
+
+    ViewCount:
+      type: object
+      properties:
+        views:
+          type: number
+      required:
+        - views
+
+    ContactInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+        subject:
+          type: string
+          minLength: 1
+        message:
+          type: string
+          minLength: 10
+      required:
+        - name
+        - email
+        - subject
+        - message
+
+    ContactResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    SkillGroup:
+      type: object
+      properties:
+        category:
+          type: string
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/Skill"
+      required:
+        - category
+        - skills
+
+    Skill:
+      type: object
+      properties:
+        name:
+          type: string
+        level:
+          type: number
+          description: Proficiency 1-100
+        yearsExperience:
+          type: ["number", "null"]
+      required:
+        - name
+        - level
+        - yearsExperience
+
+    PortfolioStats:
+      type: object
+      properties:
+        yearsExperience:
+          type: number
+        projectsShipped:
+          type: number
+        publicationsCount:
+          type: number
+        certificationsCount:
+          type: number
+        githubStars:
+          type: number
+        technologiesMastered:
+          type: number
+      required:
+        - yearsExperience
+        - projectsShipped
+        - publicationsCount
+        - certificationsCount
+        - githubStars
+        - technologiesMastered
