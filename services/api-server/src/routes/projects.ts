@@ -142,7 +142,12 @@ async function seedIfEmpty() {
   ];
 
   for (const project of realProjects) {
-    await db.insert(projectsTable).values(project).onConflictDoNothing();
+    try {
+      await db.insert(projectsTable).values(project).onConflictDoNothing();
+    } catch (err) {
+      console.error("Seed failed:", err);
+      throw err;
+    }
   }
 }
 
